@@ -2,9 +2,12 @@ package com.github.kostyasha.github.integration.branch;
 
 import com.cloudbees.jenkins.GitHubRepositoryName;
 import com.coravy.hudson.plugins.github.GithubProjectProperty;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlFormUtil;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.htmlunit.BrowserVersion;
+import org.htmlunit.html.HtmlInput;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlPage;
 import com.github.kostyasha.github.integration.branch.events.GitHubBranchEvent;
 import com.github.kostyasha.github.integration.branch.events.impl.GitHubBranchCreatedEvent;
 import com.github.kostyasha.github.integration.branch.events.impl.GitHubBranchHashChangedEvent;
@@ -210,8 +213,10 @@ public class GitHubBranchTriggerTest {
 
         HtmlPage repoPage = webClient.getPage(project, "github-branch");
         HtmlForm form = repoPage.getFormByName("rebuildAllFailed");
-        HtmlFormUtil.getButtonByCaption(form, "Rebuild all failed builds").click();
-        HtmlPage page = (HtmlPage) submit(form);
+        HtmlButton button = form.getFirstByXPath("//button[text()='Rebuild all failed builds']");
+        button.click();
+        HtmlButton submitButton = form.getFirstByXPath("//button[@type='submit']");
+        HtmlPage page = submitButton.click();
 
         Queue.Item[] items = jRule.getInstance().getQueue().getItems();
         assertThat(items, arrayWithSize(0));

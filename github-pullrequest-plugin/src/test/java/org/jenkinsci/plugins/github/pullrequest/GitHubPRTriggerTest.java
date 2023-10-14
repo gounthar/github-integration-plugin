@@ -3,9 +3,6 @@ package org.jenkinsci.plugins.github.pullrequest;
 import antlr.ANTLRException;
 import com.cloudbees.jenkins.GitHubRepositoryName;
 import com.coravy.hudson.plugins.github.GithubProjectProperty;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlFormUtil;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.Functions;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -45,8 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static com.gargoylesoftware.htmlunit.html.HtmlFormUtil.submit;
+import org.htmlunit.BrowserVersion;
+import org.htmlunit.html.HtmlInput;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlPage;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
@@ -230,8 +231,10 @@ public class GitHubPRTriggerTest {
 
         HtmlPage repoPage = webClient.getPage(project, "github-pullrequest");
         HtmlForm form = repoPage.getFormByName("rebuildAllFailed");
-        HtmlFormUtil.getButtonByCaption(form, "Rebuild all failed builds").click();
-        HtmlPage page = (HtmlPage) submit(form);
+        HtmlButton button = form.getFirstByXPath("//button[text()='Rebuild all failed builds']");
+        button.click();
+        HtmlButton submitButton = form.getFirstByXPath("//button[@type='submit']");
+        HtmlPage page = submitButton.click();
 
         Queue.Item[] items = j.getInstance().getQueue().getItems();
         assertThat(items, arrayWithSize(0));
